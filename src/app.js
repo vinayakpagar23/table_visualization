@@ -22,7 +22,9 @@ app.use(cookieParser());
 
 // import routes 
 import userRouter from "./routes/user.routes.js";
+import tableRouter from "./routes/table.routes.js";
 
 app.use("/api/v1/users",userRouter);
+app.use("/api/v1/table",tableRouter);
 
 export { app };

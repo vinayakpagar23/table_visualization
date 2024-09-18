@@ -1,28 +1,38 @@
 import mongoose, { Schema } from "mongoose";
 
+const ColumnSchema = new Schema({
+  name: {
+    type: String,
+    required: true,
+  },
+  dataType: {
+    type: String,
+    required: true,
+  },
+});
+
 const TableSchema = new Schema(
   {
     tableName: {
       type: String,
-      required: [true, 'TableName is required'],
+      required: [true, "TableName is required"],
       unique: true,
       trim: true,
-      index: true
+      index: true,
     },
     columns: {
-      type: Array, 
+      type: [ColumnSchema],
       required: true,
-      default: []
+      default: [],
     },
-    owner:{
-        type:Schema.Types.ObjectId,
-        ref:"User"
-    }
+    owner: {
+      type: Schema.Types.ObjectId,
+      required:true
+    },
   },
   {
-    timestamps: true
+    timestamps: true,
   }
 );
-
 
 export const Table = mongoose.model("Table", TableSchema);

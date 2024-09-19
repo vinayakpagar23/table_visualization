@@ -22,6 +22,7 @@ const generateAccessToken = async (userId) => {
 };
 
 const registerUser = asyncHandler(async (req, res) => {
+  try{
   const { userName, email, password } = req.body;
   if ([userName, email, password].some((field) => field?.trim() === "")) {
     throw new ApiError(400, "All Field Are compulsory");
@@ -57,6 +58,16 @@ const registerUser = asyncHandler(async (req, res) => {
   } else {
     throw new ApiError(408, "User Not Added !!");
   }
+}
+catch(error){
+  if (error instanceof ApiError) {
+    return res.status(error.statusCode).json({
+      status: error.statusCode,
+      message: error.message,
+    });
+  }
+  
+}
 });
 
 const loginUser = asyncHandler(async (req, res) => {
@@ -67,8 +78,9 @@ const loginUser = asyncHandler(async (req, res) => {
     }
 
     const user = await User.findOne({ userName }).select(
-      "--password --refreshToken"
+      "-refreshToken"
     );
+    console.log("User :: ",user);
     if (!user) {
       throw new ApiError(404, "user not Found !!");
     }
@@ -85,6 +97,7 @@ const loginUser = asyncHandler(async (req, res) => {
       secure: true,
     };
 
+  
     return res
       .status(200)
       .cookie("accessToken", accessToken, options)
@@ -101,6 +114,13 @@ const loginUser = asyncHandler(async (req, res) => {
         )
       );
   } catch (error) {
+    if (error instanceof ApiError) {
+      return res.status(error.statusCode).json({
+        status: error.statusCode,
+        message: error.message,
+      });
+    }
+
     console.log("error :: ", error);
     throw new ApiError(500, "Something went Wrong !!");
   }
@@ -134,6 +154,12 @@ const logoutUser = asyncHandler(async (req, res) => {
       .clearCookie("refreshToken", options)
       .json(new ApiResponse(200, {}, "User logout SuccessFully !"));
   } catch (error) {
+    if (error instanceof ApiError) {
+      return res.status(error.statusCode).json({
+        status: error.statusCode,
+        message: error.message,
+      });
+    }
     console.log("error in logout :: ", error);
   }
 });
@@ -216,6 +242,21 @@ const getCurrentUser = asyncHandler(async (req, res) => {
     .json(200, req.user, "Current User fetch successFully !");
 });
 
+const checkAccessActive = asyncHandler(async (req, res) => {
+ try {
+      if(!req.cookies.accessToken){
+        return res.status(200).json(
+          new ApiError(404,"accessToken Not found !")
+        )
+      }
+      return res.status(200).json(
+        new ApiResponse(200,req.cookies.accessToken,"success")
+      )
+ } catch (error) {
+    console.log("error::: ",error);
+ }
+});
+
 export {
   registerUser,
   loginUser,
@@ -223,4 +264,5 @@ export {
   refreshAccessToken,
   changeCurrentPassword,
   getCurrentUser,
+  checkAccessActive,
 };

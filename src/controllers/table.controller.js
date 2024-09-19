@@ -10,6 +10,11 @@ const insertTable = asyncHandler(async (req, res) => {
     if (!tableName) {
       throw new ApiError(400, "Table Name is Required !");
     }
+
+    const isTableNameExist = await Table.findOne({tableName});
+    if(isTableNameExist){
+       throw new ApiError(400,"Table already exist !");
+    }
     const { _id } = req.user;
     await Table.create({
       tableName,
@@ -22,7 +27,15 @@ const insertTable = asyncHandler(async (req, res) => {
       .json(new ApiResponse(200, {}, "Table added SuccessFully !"));
   } catch (error) {
     console.log("Error while inserting Table ::: ", error);
-    throw new ApiError(400, "Table not added !");
+    if (error instanceof ApiError) {
+      return res.status(error.statusCode).json({
+        status: error.statusCode,
+        message: error.message,
+      });
+    }
+
+    throw new ApiError(500, "Something went Wrong !");
+
   }
 });
 

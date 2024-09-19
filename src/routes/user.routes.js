@@ -1,5 +1,5 @@
 import {Router} from "express";
-import { loginUser, registerUser,logoutUser, refreshAccessToken, changeCurrentPassword, getCurrentUser } from "../controllers/user.controller.js";
+import { loginUser, registerUser,logoutUser, refreshAccessToken, changeCurrentPassword, getCurrentUser, checkAccessActive } from "../controllers/user.controller.js";
 import { validateToken } from "../middlewares/auth.middleware.js";
 
 const router =Router();
@@ -9,6 +9,7 @@ router.route("/login").post(loginUser);
 router.route("/logout").post(validateToken,logoutUser);
 router.route("/refreshToken").post(refreshAccessToken);
 router.route("/updatePassword").post(validateToken,changeCurrentPassword);
-router.route("./getCurrentUser").post(validateToken,getCurrentUser)
+router.route("/getCurrentUser").post(validateToken,getCurrentUser);
+router.route("/checkAccess").get(checkAccessActive);
 
 export default router;
